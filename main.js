@@ -1,6 +1,7 @@
 let previousOperator = null;
 let totalNumber = 0;
 let screenNumber = '0';
+let operatorIsActive = false;
 
 const screen = document.querySelector('.screen');
 
@@ -12,18 +13,25 @@ function buttonClick(value) {
 	}
 
 	screen.innerText = screenNumber;
-	if (screen.innerText.length > 6) {
-		screen.innerText = screen.innerText.slice(0, 7);
-	}
 }
 
 function handleNumber(value) {
 	if (screenNumber === '0') {
+		screenNumber = '';
+	}
+
+	if (operatorIsActive) {
+		operatorIsActive = false;
 		screenNumber = value;
 	} else {
 		screenNumber += value;
+		screenNumber = screenNumber.slice(0, 9);
+		if (screenNumber.length > 6) {
+			screen.style.fontSize = '56px';
+		}
 	}
 }
+
 
 function handleSymbol(symbol) {
 	switch (symbol) {
@@ -36,13 +44,16 @@ function handleSymbol(symbol) {
 				screenNumber = '0';
 			} else {
 				screenNumber = screenNumber.slice(0, -1);
+				if (screenNumber.length < 7) {
+					screen.style.fontSize = '88px';
+				}
 			}
 			break;
 		case '=':
 			if (previousOperator === null) {
 				return
 			}
-			Calc(parseInt(screenNumber));
+			calc(parseInt(screenNumber));
 			previousOperator = null;
 			screenNumber = +totalNumber;
 			totalNumber = 0;
@@ -65,14 +76,14 @@ function handleMath(symbol) {
 	if (totalNumber === 0) {
 		totalNumber = intScreenNumber;
 	} else {
-		Calc(intScreenNumber);
+		calc(intScreenNumber);
 	}
 
 	previousOperator = symbol;
-	screenNumber = '0';
+	operatorIsActive = true;
 }
 
-function Calc(intScreenNumber) {
+function calc(intScreenNumber) {
 	if (previousOperator === '+') {
 		totalNumber += intScreenNumber;
 	} else if (previousOperator === '−') {
@@ -82,9 +93,8 @@ function Calc(intScreenNumber) {
 	} else {
 		totalNumber *= intScreenNumber;
 	}
+	totalNumber = totalNumber.toFixed(5);
 }
-
-
 
 document.querySelector('.calc-buttons')
 	.addEventListener('click', function (event) {
